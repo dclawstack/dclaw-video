@@ -1,0 +1,45 @@
+{
+  "productName": "DClaw Video",
+  "version": "0.1.0",
+  "identifier": "com.dclaw.video",
+  "build": {
+    "beforeDevCommand": "cd ../frontend && npm run dev",
+    "beforeBuildCommand": "cd ../frontend && npm run build",
+    "devUrl": "http://localhost:3011",
+    "frontendDist": "../frontend/dist"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "title": "DClaw Video",
+        "width": 1440,
+        "height": 900,
+        "resizable": true,
+        "fullscreen": false
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  },
+  "plugins": {
+    "updater": {
+      "active": true,
+      "endpoints": [],
+      "dialog": true,
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDBBNUQ4Q0U4M0JBQzY4RDkKUldRa2ZHR1R4d3F5MXVTZU1wZ1VLZDVXYzR4bWY4ZUZwWXpQdFZpZVNMN3NaaFhHUjNhYkR5dwo="
+    }
+  }
+}

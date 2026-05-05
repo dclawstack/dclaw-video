@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "dclaw-video.fullname" . }}
+  labels:
+    {{- include "dclaw-video.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "dclaw-video.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "dclaw-video.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: backend
+          image: "{{ .Values.image.backend.repository }}:{{ .Values.image.backend.tag }}"
+          imagePullPolicy: {{ .Values.image.backend.pullPolicy }}
+          ports:
+            - containerPort: 8097
+          env:
+            - name: DCLAW_REDIS_URL
+              value: {{ .Values.env.DCLAW_REDIS_URL | quote }}
+            - name: DCLAW_COMFYUI_URL
+              value: {{ .Values.env.DCLAW_COMFYUI_URL | quote }}
+            - name: DCLAW_MINIO_ENDPOINT
+              value: {{ .Values.env.DCLAW_MINIO_ENDPOINT | quote }}
+            - name: DCLAW_MINIO_ACCESS_KEY
+              value: {{ .Values.env.DCLAW_MINIO_ACCESS_KEY | quote }}
+            - name: DCLAW_MINIO_SECRET_KEY
+              value: {{ .Values.env.DCLAW_MINIO_SECRET_KEY | quote }}
+            - name: DCLAW_DATABASE_URL
+              value: {{ .Values.env.DCLAW_DATABASE_URL | quote }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8097
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8097
+            initialDelaySeconds: 5
+            periodSeconds: 10
