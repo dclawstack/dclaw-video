@@ -17,6 +17,6 @@ class Scene(Base):
     duration_seconds = Column(Float, nullable=False, default=5.0)
     status = Column(Enum("pending", "generating", "done", "error", name="scene_status"), nullable=False, default="pending")
     video_clip_url = Column(String, nullable=True)
-    metadata = Column(JSON, default=dict)
+    scene_metadata = Column(JSON, default=dict)
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
     updated_at = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
