@@ -57,3 +57,6 @@ helm/         Kubernetes Helm chart
 
 ## License
 MIT
+
+## Contributors
+- [@sureshOC](https://github.com/sureshOC)
