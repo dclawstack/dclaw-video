@@ -1,45 +1,44 @@
-from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_db
-from app.core.celery_app import celery_app
-from app.models.scene import Scene
+from app.repositories.scene import SceneRepository
 from app.schemas.scene import SceneUpdate, SceneOut
 
 router = APIRouter(tags=["scenes"])
 
 
 @router.get("/projects/{project_id}/scenes", response_model=list[SceneOut])
-async def list_scenes(project_id: UUID, db: AsyncSession = Depends(get_db)) -> list[Scene]:
-    result = await db.execute(
-        select(Scene).where(Scene.project_id == project_id).order_by(Scene.scene_number)
-    )
-    return list(result.scalars().all())
+async def list_scenes(project_id: str, db: AsyncSession = Depends(get_db)) -> list:
+    repo = SceneRepository(db)
+    return await repo.list_by_project(project_id)
 
 
-@router.put("/scenes/{scene_id}", response_model=SceneOut)
-async def update_scene(scene_id: UUID, data: SceneUpdate, db: AsyncSession = Depends(get_db)) -> Scene:
-    result = await db.execute(select(Scene).where(Scene.id == scene_id))
-    scene = result.scalar_one_or_none()
+@router.get("/scenes/{scene_id}", response_model=SceneOut)
+async def get_scene(scene_id: str, db: AsyncSession = Depends(get_db)) -> dict:
+    repo = SceneRepository(db)
+    scene = await repo.get_by_id(scene_id)
     if not scene:
         raise HTTPException(status_code=404, detail="Scene not found")
-
-    for field, value in data.model_dump(exclude_unset=True).items():
-        setattr(scene, field, value)
-
-    await db.commit()
-    await db.refresh(scene)
     return scene
 
 
-@router.post("/scenes/{scene_id}/regenerate", status_code=202)
-async def regenerate_scene(scene_id: UUID, db: AsyncSession = Depends(get_db)) -> dict[str, str]:
-    result = await db.execute(select(Scene).where(Scene.id == scene_id))
-    scene = result.scalar_one_or_none()
+@router.put("/scenes/{scene_id}", response_model=SceneOut)
+async def update_scene(scene_id: str, data: SceneUpdate, db: AsyncSession = Depends(get_db)) -> dict:
+    repo = SceneRepository(db)
+    scene = await repo.get_by_id(scene_id)
     if not scene:
         raise HTTPException(status_code=404, detail="Scene not found")
 
-    task = celery_app.send_task("tasks.render_scene", args=[str(scene_id)])
-    return {"job_id": task.id}
+    updates = data.model_dump(exclude_unset=True)
+    updated = await repo.update(scene, **updates)
+    return updated
+
+
+@router.delete("/scenes/{scene_id}", status_code=204)
+async def delete_scene(scene_id: str, db: AsyncSession = Depends(get_db)) -> None:
+    repo = SceneRepository(db)
+    deleted = await repo.delete(scene_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Scene not found")
+    return None

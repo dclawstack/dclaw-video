@@ -1,17 +1,22 @@
 import uuid
-from datetime import datetime
-from sqlalchemy import Column, String, Float, DateTime
-from sqlalchemy.dialects.postgresql import UUID
+from datetime import datetime, timezone
 
-from app.core.db import Base
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import String, Float, DateTime
+
+from app.models.base import Base
+
+
+def utc_now() -> datetime:
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 class VoiceProfile(Base):
     __tablename__ = "voice_profiles"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    name = Column(String, nullable=False)
-    kokoro_voice_id = Column(String, nullable=False)
-    speed = Column(Float, nullable=False, default=1.0)
-    language = Column(String, nullable=False, default="en")
-    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    name: Mapped[str] = mapped_column(String, nullable=False)
+    kokoro_voice_id: Mapped[str] = mapped_column(String, nullable=False)
+    speed: Mapped[float] = mapped_column(Float, default=1.0)
+    language: Mapped[str] = mapped_column(String, default="en")
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now)

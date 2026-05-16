@@ -1,17 +1,18 @@
 import pytest
-from httpx import AsyncClient
+from httpx import AsyncClient, ASGITransport
+
 from app.api.main import app
 
 
 @pytest.mark.asyncio
-async def test_create_project():
-    async with AsyncClient(app=app, base_url="http://test") as ac:
-        response = await ac.post("/api/v1/projects", json={
-            "title": "Test Project",
-            "script_text": "Scene one.\n\nScene two.",
-            "template": "youtube_explainer",
-        })
+async def test_create_project(db_session):
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        response = await ac.post(
+            "/api/v1/projects",
+            json={"title": "Test Video", "script_text": "Hello world"},
+        )
     assert response.status_code == 201
     data = response.json()
-    assert data["title"] == "Test Project"
+    assert data["title"] == "Test Video"
     assert data["status"] == "draft"

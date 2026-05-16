@@ -11,6 +11,15 @@ class ProjectCreate(BaseModel):
     character_id: UUID | None = None
 
 
+class ProjectUpdate(BaseModel):
+    title: str | None = None
+    script_text: str | None = None
+    status: str | None = None
+    template: str | None = None
+    voice_profile_id: str | None = None
+    character_id: str | None = None
+
+
 class ProjectOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

@@ -1,22 +1,35 @@
 import uuid
-from datetime import datetime
-from sqlalchemy import Column, String, Text, Integer, Float, DateTime, ForeignKey, Enum, JSON
-from sqlalchemy.dialects.postgresql import UUID
+from datetime import datetime, timezone
 
-from app.core.db import Base
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import String, Text, Integer, Float, DateTime, ForeignKey, Enum, JSON
+
+from app.models.base import Base
+
+
+def utc_now() -> datetime:
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 class Scene(Base):
     __tablename__ = "scenes"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    project_id = Column(UUID(as_uuid=True), ForeignKey("projects.id", ondelete="CASCADE"), nullable=False)
-    scene_number = Column(Integer, nullable=False)
-    narration_text = Column(Text, nullable=False, default="")
-    visual_prompt = Column(Text, nullable=False, default="")
-    duration_seconds = Column(Float, nullable=False, default=5.0)
-    status = Column(Enum("pending", "generating", "done", "error", name="scene_status"), nullable=False, default="pending")
-    video_clip_url = Column(String, nullable=True)
-    scene_metadata = Column(JSON, default=dict)
-    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
-    updated_at = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    project_id: Mapped[str] = mapped_column(
+        String(36),
+        ForeignKey("projects.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    scene_number: Mapped[int] = mapped_column(Integer, nullable=False)
+    narration_text: Mapped[str] = mapped_column(Text, default="")
+    visual_prompt: Mapped[str] = mapped_column(Text, default="")
+    duration_seconds: Mapped[float] = mapped_column(Float, default=5.0)
+    status: Mapped[str] = mapped_column(
+        Enum("pending", "generating", "done", "error", name="scene_status"),
+        nullable=False,
+        default="pending",
+    )
+    video_clip_url: Mapped[str | None] = mapped_column(String, nullable=True)
+    scene_metadata: Mapped[dict] = mapped_column(JSON, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now, onupdate=utc_now)

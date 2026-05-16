@@ -1,11 +1,11 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
     app_name: str = "DClaw Video"
     debug: bool = False
 
-    database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/dclaw"
+    database_url: str = "sqlite+aiosqlite:///./dev.db"
     redis_url: str = "redis://localhost:6379/0"
 
     comfyui_url: str = "http://localhost:8188"
@@ -25,9 +25,7 @@ class Settings(BaseSettings):
     celery_task_serializer: str = "json"
     celery_accept_content: list[str] = ["json"]
 
-    class Config:
-        env_prefix = "DCLAW_"
-        env_file = ".env"
+    model_config = SettingsConfigDict(env_prefix="DCLAW_", env_file=".env")
 
 
 settings = Settings()

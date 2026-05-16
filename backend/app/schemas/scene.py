@@ -20,6 +20,6 @@ class SceneOut(BaseModel):
     duration_seconds: float
     status: str
     video_clip_url: str | None
-    metadata: dict
+    scene_metadata: dict
     created_at: datetime
     updated_at: datetime
