@@ -1,5 +1,8 @@
 # DClaw Video — v1.2 Strategic Plan
 
+> 📘 **REVISED PRD v2.3 available:** See `REVISED-PRD.md` for complete gap analysis, current state, and full feature roadmap.
+
+
 > Y Combinator Gap Analysis & Prioritized Implementation Roadmap
 > Git username: `sureshOC` | Commit ready: ✅ | Database: SQLite (local dev)
 
