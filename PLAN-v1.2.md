@@ -2,7 +2,12 @@
 
 > **Target:** Y Combinator W24 Batch | **Domain:** AI Video Production for B2B Content Teams
 > **Pitch:** "Loom for AI video — turn scripts into publishable videos in 3 minutes"
-> **Git:** `sureshOC` | **Commits:** `616e240` (C0.1 infra), `HEAD` (lint fix)
+> **Git:** `sureshOC` | **Commits:** `616e240` (C0.1 infra), `7c1b26c` (YC auth + AI)
+>
+> 📘 **REVISED PRD v2.3 available:** See `REVISED-PRD.md` for complete gap analysis, current state, and full feature roadmap.
+>
+> Y Combinator Gap Analysis & Prioritized Implementation Roadmap
+> Database: SQLite (local dev)
 
 ---
 
