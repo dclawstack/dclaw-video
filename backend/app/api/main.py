@@ -1,14 +1,16 @@
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import projects, scenes, render, storyboard, websocket
+from app.api.routes import ai, auth, projects, render, scenes, storyboard, websocket
 from app.core.config import settings
 from app.core.db import init_db
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     await init_db()
     yield
 
@@ -23,6 +25,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth.router, prefix="/api/v1")
+app.include_router(ai.router, prefix="/api/v1")
 app.include_router(projects.router, prefix="/api/v1")
 app.include_router(scenes.router, prefix="/api/v1")
 app.include_router(render.router, prefix="/api/v1")

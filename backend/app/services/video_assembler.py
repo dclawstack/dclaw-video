@@ -2,8 +2,7 @@ import os
 import subprocess
 import tempfile
 from pathlib import Path
-
-from app.core.config import settings
+from typing import Any
 
 
 class VideoAssembler:
@@ -24,11 +23,15 @@ class VideoAssembler:
         return path
 
     def burn_subtitles(self, video_path: str, srt_path: str, output_path: str) -> str:
+        style = (
+            "FontSize=24,PrimaryColour=&H00FFFFFF,"
+            "OutlineColour=&H00000000,Outline=2"
+        )
         cmd = [
             "ffmpeg",
             "-y",
             "-i", video_path,
-            "-vf", f"subtitles={srt_path}:force_style='FontSize=24,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,Outline=2'",
+            "-vf", f"subtitles={srt_path}:force_style='{style}'",
             "-c:a", "copy",
             output_path,
         ]
@@ -82,14 +85,15 @@ class VideoAssembler:
         subprocess.run(cmd, check=True)
         return output_path
 
-    def generate_srt(self, scenes: list[dict], output_path: str) -> str:
-        lines = []
+    def generate_srt(self, scenes: list[dict[str, Any]], output_path: str) -> str:
+        lines: list[str] = []
         current_time = 0.0
         for idx, scene in enumerate(scenes, start=1):
-            duration = scene.get("duration_seconds", 5.0)
+            duration_val = scene.get("duration_seconds", 5.0)
+            duration = float(duration_val)
             start = self._seconds_to_srt_time(current_time)
             end = self._seconds_to_srt_time(current_time + duration)
-            text = scene.get("narration_text", "")
+            text = str(scene.get("narration_text", ""))
             lines.append(f"{idx}")
             lines.append(f"{start} --> {end}")
             lines.append(text)

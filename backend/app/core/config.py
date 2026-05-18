@@ -12,6 +12,9 @@ class Settings(BaseSettings):
     ollama_url: str = "http://localhost:11434"
     ollama_model: str = "llama3"
 
+    openrouter_api_key: str = ""
+    openrouter_model: str = "meta-llama/llama-3.1-8b-instruct"
+
     minio_endpoint: str = "localhost:9000"
     minio_access_key: str = "minioadmin"
     minio_secret_key: str = "minioadmin"
@@ -20,6 +23,9 @@ class Settings(BaseSettings):
 
     kokoro_model_path: str = "./models/kokoro-v1.0.onnx"
     kokoro_voices_path: str = "./models/voices.bin"
+
+    secret_key: str = "change-me-in-production"
+    access_token_expire_minutes: int = 60
 
     celery_result_backend: str | None = None
     celery_task_serializer: str = "json"

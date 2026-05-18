@@ -1,5 +1,5 @@
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, delete, update
 
 from app.models.storyboard import Storyboard
 
@@ -27,14 +27,18 @@ class StoryboardRepository:
         return sb
 
     async def get_by_id(self, sb_id: str) -> Storyboard | None:
-        result = await self._session.execute(select(Storyboard).where(Storyboard.id == sb_id))
+        result = await self._session.execute(
+            select(Storyboard).where(Storyboard.id == sb_id)
+        )
         return result.scalar_one_or_none()
 
-    async def list_by_scene(self, scene_id: str):
+    async def list_by_scene(self, scene_id: str) -> list[Storyboard]:
         result = await self._session.execute(
-            select(Storyboard).where(Storyboard.scene_id == scene_id).order_by(Storyboard.frame_number)
+            select(Storyboard)
+            .where(Storyboard.scene_id == scene_id)
+            .order_by(Storyboard.frame_number)
         )
-        return result.scalars().all()
+        return list(result.scalars().all())
 
     async def select_storyboard(self, sb_id: str) -> Storyboard | None:
         sb = await self.get_by_id(sb_id)
@@ -45,6 +49,8 @@ class StoryboardRepository:
         return sb
 
     async def delete(self, sb_id: str) -> bool:
-        result = await self._session.execute(delete(Storyboard).where(Storyboard.id == sb_id))
+        result = await self._session.execute(
+            delete(Storyboard).where(Storyboard.id == sb_id)
+        )
         await self._session.commit()
-        return result.rowcount > 0
+        return bool(result.rowcount > 0)  # type: ignore[attr-defined]

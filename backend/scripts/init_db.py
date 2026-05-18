@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Bootstrap local SQLite development database."""
 import asyncio
-import sys
 
 from app.core.db import init_db
 

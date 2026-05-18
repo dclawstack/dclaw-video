@@ -1,20 +1,22 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
+from sqlalchemy import DateTime, Enum, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import String, Integer, DateTime, ForeignKey, Enum, Text
 
 from app.models.base import Base
 
 
 def utc_now() -> datetime:
-    return datetime.now(timezone.utc).replace(tzinfo=None)
+    return datetime.now(UTC).replace(tzinfo=None)
 
 
 class RenderJob(Base):
     __tablename__ = "render_jobs"
 
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    id: Mapped[str] = mapped_column(
+        String(36), primary_key=True, default=lambda: str(uuid.uuid4())
+    )
     project_id: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("projects.id", ondelete="CASCADE"),
@@ -30,4 +32,6 @@ class RenderJob(Base):
     logs: Mapped[str | None] = mapped_column(Text, nullable=True)
     result_url: Mapped[str | None] = mapped_column(String, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now, onupdate=utc_now)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, default=utc_now, onupdate=utc_now
+    )

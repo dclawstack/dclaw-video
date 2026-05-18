@@ -1,5 +1,6 @@
-from uuid import UUID
 from datetime import datetime
+from uuid import UUID
+
 from pydantic import BaseModel, ConfigDict
 
 
@@ -20,6 +21,6 @@ class SceneOut(BaseModel):
     duration_seconds: float
     status: str
     video_clip_url: str | None
-    scene_metadata: dict
+    scene_metadata: dict[str, object]
     created_at: datetime
     updated_at: datetime

@@ -1,340 +1,172 @@
-# DClaw Video — v1.2 Strategic Plan
+# DClaw Video — YC W24 Strategic Plan
 
-> Y Combinator Gap Analysis & Prioritized Implementation Roadmap
-> Git username: `sureshOC` | Commit ready: ✅ | Database: SQLite (local dev)
-
----
-
-## Executive Summary
-
-DClaw Video is an **AI Video Director & Editor** — script to publishable video without touching a timeline. It targets creators, marketers, and educators who need rapid video production at scale.
-
-This plan identifies five mission-critical gaps that must be closed before this product can graduate from scaffold to YC-investible startup.
+> **Target:** Y Combinator W24 Batch | **Domain:** AI Video Production for B2B Content Teams
+> **Pitch:** "Loom for AI video — turn scripts into publishable videos in 3 minutes"
+> **Git:** `sureshOC` | **Commits:** `616e240` (C0.1 infra), `HEAD` (lint fix)
 
 ---
 
-## Phase 1: Critical Infrastructure Debt (Fix Before Any Feature Work)
+## 1. YC Gap Analysis: Why Current Product Won't Get In
 
-### 🚨 C0.1 — Fix Core Model & Database Infrastructure
-**Complexity: 0 | Status: BLOCKING ALL DEVELOPMENT**
+### The Brutal Truth
 
-The codebase has **4 architecture violations** that will cause cascading failures. These MUST be fixed before any feature implementation.
+YC accepts ~2% of applicants. For B2B SaaS, they look for:
+1. **"Hair on fire" problem** — Customers are desperate enough to pay TODAY
+2. **Rapid distribution** — $1M ARR path within 12–18 months
+3. **Defensible moat** — Not easily replicable by OpenAI/Anthropic
+4. **Working product** — Demo must work in the interview room
+5. **Team velocity** — Can ship 10x faster than incumbents
 
-| Violation | File | Severity | Fix |
-|---|---|---|---|
-| `declarative_base()` used instead of `DeclarativeBase` | `app/core/db.py` | 🔴 CRITICAL | Remove `Base = declarative_base()`, import from `app.models.base` |
-| Models use legacy `Column()` instead of `Mapped[]`+`mapped_column()` | All model files | 🔴 CRITICAL | Rewrite all 6 models to use SQLAlchemy 2.0 mapped syntax |
-| No `repositories/` directory — DB access via inline ORM | Missing | 🔴 CRITICAL | Create repository layer per AGENTS.md spec |
-| Zero alembic migration infrastructure | Missing | 🟡 HIGH | Initialize alembic, generate initial migration |
-| Frontend directory structure doesn't match AGENTS.md spec | `app/`, `components/` | 🟡 HIGH | Move to `src/app/`, `src/components/ui/`, create `src/lib/api.ts` |
-| Pre-built UI components missing | `components/ui/` empty | 🟡 HIGH | Add button, card, input, label, badge, select, dialog, table, tabs, avatar |
-| Missing `fastapi lifespan` handler | `app/api/main.py` | 🟡 HIGH | Add lifespan for engine disposal |
+### Our 7 Critical Gaps
 
-**Deliverables:**
-- `backend/app/core/db.py` — refactored
-- `backend/app/models/*.py` — all 6 models rewritten (project, scene, storyboard, render_job, character, voice_profile)
-- `backend/app/repositories/` — 6 repository modules with CRUD
-- `backend/alembic/` — initialized with initial migration
-- `frontend/src/` — restructured with `lib/api.ts`, `components/ui/`
+| # | Gap | Severity | YC Interview Risk |
+|---|-----|----------|-------------------|
+| 1 | **No authenticated product** — Anyone can access, no user accounts | 🔴 CRITICAL | "Who's your user? Show me their dashboard." → **FAIL** |
+| 2 | **No AI pipeline working** — Script → video is manual mockup | 🔴 CRITICAL | "Show me the AI working." → **FAIL** |
+| 3 | **No subscription model** — Can't charge money | 🔴 CRITICAL | "How do you make money?" → **FAIL** |
+| 4 | **Positioning too broad** — "AI video editor" vs. specific persona | 🟡 HIGH | "Who exactly pays for this and why?" → **WEAK** |
+| 5 | **No collaboration** — Single user only, no team features | 🟡 HIGH | "How do teams use this?" → **FAIL** |
+| 6 | **No video export** — Can't download actual MP4 file | 🟡 HIGH | "Can I download the video?" → **FAIL** |
+| 7 | **No onboarding** — No demo, no templates, no tutorial | 🟡 HIGH | "Show me a new user using this." → **FAIL** |
 
----
+### The Winning Wedge: "AI Video Briefing Tool for Customer-Facing Teams"
 
-## Phase 2: YC Gap Analysis
+**Specific persona:** Customer success managers, sales engineers, and onboarding specialists who need to create personalized video walkthroughs at scale.
 
-### Gap 1: Not a Working Product — Just a Scaffold
-**Severity: 🔴 CRITICAL**
+**Why they have hair on fire:**
+- Current workflow: Record screen with Loom → edit in Descript → export → upload to CRM → send to customer
+- Time per video: 30–45 minutes
+- With DClaw Video: Paste script → AI generates scenes + voiceover → download MP4 → 3 minutes
+- **10x faster = $200+/hour saved per CSM**
 
-YC reviews **working demos**, not architecture diagrams. The current codebase has:
-- Skeleton CRUD routes (no real business logic)
-- Empty service implementations
-- No end-to-end AI pipeline working
-- No actual video generation
-
-> **YC Question:** "Can I sign up and generate a video in 5 minutes?"
-> **Current Answer:** No.
-
-### Gap 2: No Clear "Hair on Fire" Problem
-**Severity: 🔴 CRITICAL**
-
-- **Descript** solves: "Transcription + text-based editing"
-- **Runway** solves: "AI magic for Hollywood creators"
-- **Loom** solves: "Quick async video messages"
-- **Synthesia** solves: "AI avatars for enterprise training"
-
-**DClaw Video's positioning is too generic.** We need a razor-sharp wedge:
-
-> **Proposed Wedge:** "AI Video Director for Content Teams" — Marketing/social media teams who need 10x video output with zero editing skills. Script → auto-scene generation → auto-voiceover → auto-render → publish.
-
-### Gap 3: No Competitive Moat / Differentiator
-**Severity: 🟡 HIGH**
-
-Current feature list is a subset of existing tools. Differentiators needed:
-1. **Local-first pipeline** — ComfyUI + FLUX runs locally = no cloud costs, no data leakage (privacy moat)
-2. **Character consistency** — IP-Adapter face lock across scenes (unique for local tools)
-3. **Template system** — Pre-built YouTube Explainer / Product Demo / Social Reel templates with one-click generation
-4. **Script-to-publish in 3 minutes** — End-to-end speed benchmark others can't match
-
-### Gap 4: No Business Model or Metrics
-**Severity: 🟡 HIGH**
-
-YC expects: pricing, ideal customer profile, estimated CAC/LTV. Current plan has none.
-
-> **Proposed Model:** Freemium SaaS
-> - Free tier: 5 videos/month, 720p, watermark
-> - Pro ($29/mo): Unlimited, 1080p, no watermark, custom templates, team collaboration
-> - Enterprise ($99/seat/mo): On-prem ComfyUI, SSO, API access, priority support
-
-### Gap 5: Incomplete Frontend — No Actual User Experience
-**Severity: 🟡 HIGH**
-
-Current frontend has basic pages but:
-- No component library (shadcn components missing)
-- No typed API client (`src/lib/api.ts` missing)
-- No layout/styling framework consistency
-- No error boundaries, loading states, or optimistic UI
+**Why this is defensible:**
+- Template library specific to SaaS onboarding workflows
+- CRM integrations (Salesforce, HubSpot) for 1-click sending
+- Analytics on video engagement (who watched, for how long)
+- Voice cloning maintains brand consistency across team
 
 ---
 
-## Phase 3: Prioritized Feature Roadmap (Complexity-Based)
+## 2. Required Features for Top Position in AI Video Domain
 
-### Complexity Legend
-- **0**: Low complexity / Core foundational (Quick wins, infrastructure)
-- **1**: Medium complexity / Core differentiators (Product-defining features)
-- **2**: High complexity / Advanced (AI pipelines, real-time, rendering farms)
+### Must-Have for YC (Ship in 2 Weeks)
 
----
+| Feature | Why It Matters | File Target |
+|---------|----------------|-------------|
+| **User Auth (JWT)** | Every YC demo starts with "sign up and log in" | `backend/app/api/routes/auth.py` |
+| **Real AI Script Parser** | OpenRouter LLM parses script into scenes | `backend/app/services/ai_service.py` |
+| **Cloud Video Render** | FFmpeg assembles scenes into downloadable MP4 | `backend/app/services/video_assembler.py` |
+| **Subscription Tiers** | Free/Pro/Enterprise with Stripe | `backend/app/services/billing.py` |
+| **Template Gallery** | Pre-built onboarding/demo scripts | `frontend/src/app/templates/page.tsx` |
+| **MP4 Export & Download** | Actually download the final video | `frontend/src/app/projects/[id]/render/page.tsx` |
+| **Project Sharing** | Public link to view video without login | `backend/app/api/routes/share.py` |
 
-### complexity = 0 — Infrastructure & Foundation (Do First)
+### Should-Have for Demo Day (Month 2–3)
 
-#### C0.1 — Fix Core Database & Model Infrastructure
-Already detailed in Phase 1. This is the must-fix-before-anything-else item.
+| Feature | Why It Matters | File Target |
+|---------|----------------|-------------|
+| **AI Voice Cloning** | Clone a team member's voice | `backend/app/services/voice_clone.py` |
+| **Screen Recording Upload** | Import existing screen recordings | `backend/app/api/routes/upload.py` |
+| **CRM Integration** | Send videos via Salesforce/HubSpot | `backend/app/integrations/salesforce.py` |
+| **Video Analytics** | Track views, completion rates | `backend/app/services/analytics.py` |
+| **Collaborative Comments** | Team reviews on video timeline | `frontend/src/components/comment-thread.tsx` |
+| **Multi-Language Export** | Auto-translate for global teams | `backend/app/services/translation.py` |
+| **AI Copilot Chat** | "Add a scene about pricing" | `frontend/src/components/ai-copilot.tsx` |
 
-- [ ] Fix `db.py` to use `DeclarativeBase` from `app.models.base`
-- [ ] Rewrite all models: `project.py`, `scene.py`, `storyboard.py`, `render_job.py`, `character.py`, `voice_profile.py`
-- [ ] Create `repositories/` with CRUD for each entity
-- [ ] Initialize alembic, generate initial migration
-- [ ] Fix `main.py` to add lifespan handler
-- [ ] Fix `config.py` database_url to support both Postgres and SQLite
+### Could-Have for Series A (Month 6+)
 
-**Files:** `backend/app/core/db.py`, `backend/app/models/*.py`, `backend/app/repositories/*.py`, `backend/alembic/`
-
-#### C0.2 — SQLite Local Development Database
-**Description:** Configure the application to run with SQLite for local development without requiring Docker/Postgres.
-- [ ] Add `sqlite+aiosqlite` support in `config.py` (auto-detect if Postgres is unavailable)
-- [ ] Create `backend/dev.db` with proper initialization
-- [ ] Add `scripts/init_db.py` for bootstrapping local SQLite
-- [ ] Update `conftest.py` to support SQLite test mode
-
-**Files:** `backend/app/core/config.py`, `backend/scripts/init_db.py`, `backend/tests/conftest.py`
-
-#### C0.3 — Frontend Infrastructure (Component Library + API Client)
-**Description:** Build the foundational UI components and typed API client so feature pages can be built rapidly.
-- [ ] Restructure frontend: `app/` → `src/app/`, `components/` → `src/components/`
-- [ ] Create `src/components/ui/` with pre-built components:
-  - [ ] Button (variants: default, destructive, outline, secondary, ghost, link)
-  - [ ] Card (Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter)
-  - [ ] Input (standard text input)
-  - [ ] Label (form label)
-  - [ ] Badge (variants: default, secondary, destructive, outline)
-  - [ ] Select (native select with onValueChange)
-  - [ ] Dialog (modal with trigger, content, header, title)
-  - [ ] Table (Table, TableHeader, TableBody, TableRow, TableHead, TableCell)
-  - [ ] Tabs (Tabs, TabsList, TabsTrigger, TabsContent)
-  - [ ] Avatar (Avatar, AvatarImage, AvatarFallback)
-- [ ] Create `src/lib/api.ts` typed fetch wrapper with error handling
-- [ ] Ensure `tailwindcss-animate` is in dependencies (not devDependencies)
-- [ ] Create consistent layout: `src/app/layout.tsx` with proper metadata
-
-**Files:** `frontend/src/components/ui/*.tsx`, `frontend/src/lib/api.ts`, `frontend/src/app/layout.tsx`
-
-#### C0.4 — Backend Tests & Healthchecks
-**Description:** Comprehensive test coverage for all repositories and routes. Docker healthcheck verification.
-- [ ] Tests for all 6 repositories (CRUD operations)
-- [ ] Tests for all API routes (create, read, update, delete)
-- [ ] Docker compose healthcheck verification
-- [ ] Dockerfile `ARG NEXT_PUBLIC_API_URL` verification
-
-**Files:** `backend/tests/test_*.py`
-
-#### C0.5 — Project Dashboard (Frontend)
-**Description:** A functional project dashboard listing all video projects with create/edit/delete flow.
-- [ ] Projects list page at `/projects`
-- [ ] Create project form with template selection
-- [ ] Edit project details
-- [ ] Delete with confirmation
-- [ ] Status badges (draft, storyboard, rendering, done)
-
-**Files:** `frontend/src/app/projects/page.tsx`, `frontend/src/app/projects/[id]/page.tsx`, `frontend/src/app/projects/new/page.tsx`
+| Feature | Why It Matters | File Target |
+|---------|----------------|-------------|
+| **Real-Time Collaboration** | Multiple editors, Figma-style | WebSocket + Yjs CRDT |
+| **Custom AI Avatars** | HeyGen-style avatar generation | `backend/app/services/avatar_gen.py` |
+| **Live Stream with AI** | Auto-caption live streams | `backend/app/services/live_stream.py` |
+| **Mobile App** | Record + edit on phone | React Native or Tauri mobile |
+| **API for Enterprises** | Programmatic video generation | `backend/app/api/v2/` |
 
 ---
 
-### complexity = 1 — Core Differentiators
+## 3. Implementation Roadmap (Reality-Based)
 
-#### C1.1 — AI Script-to-Scene Pipeline
-**Description:** The killer feature. User writes a script → AI breaks into scenes → generates visual prompts → creates scene records.
-- **Backend:** `/api/v1/ai/script-to-scenes` endpoint. Ollama integration for parsing scripts into structured scene data.
-- **Frontend:** Script editor page with AI "Generate Scenes" button, scene preview cards.
-- **Files:** `backend/app/services/script_parser.py`, `frontend/src/app/editor/script.tsx`
-
-#### C1.2 — Scene Storyboard Generation with ComfyUI
-**Description:** Generate 3 storyboard images per scene using ComfyUI + FLUX. User picks the best.
-- **Backend:** ComfyUI workflow triggering, image upload to MinIO/S3, storyboard CRUD.
-- **Frontend:** Storyboard gallery with image picker per scene.
-- **Files:** `backend/app/services/comfyui_client.py`, `frontend/src/app/storyboard/page.tsx`
-
-#### C1.3 — AI Voiceover & TTS Pipeline
-**Description:** Generate narration audio for each scene using Kokoro TTS. Preview and regenerate capability.
-- **Backend:** TTS service integration, audio file storage, voice profile selection.
-- **Frontend:** Voice preview player, voice profile selector.
-- **Files:** `backend/app/services/tts_service.py`, `frontend/src/components/voice-player.tsx`
-
-#### C1.4 — Auto-Captions & Subtitles
-**Description:** Generate SRT/VTT subtitles from narration. Editable transcript synced to video.
-- **Backend:** Transcription pipeline (Kokoro → text), subtitle file generation.
-- **Frontend:** Caption editor with timestamps.
-- **Files:** `backend/app/services/subtitle_generator.py`, `frontend/src/components/caption-editor.tsx`
-
-#### C1.5 — Video Assembly & Render Engine
-**Description:** Assemble scenes + audio + captions into final video. Background render via Celery.
-- **Backend:** ffmpeg-based video assembler, Celery render pipeline, progress tracking via WebSocket.
-- **Frontend:** Render queue, progress bar, download button.
-- **Files:** `backend/app/services/video_assembler.py`, `backend/app/tasks/render_tasks.py`, `frontend/src/app/render-queue/page.tsx`
+| Week | Focus | Deliverables | Complexity |
+|------|-------|--------------|------------|
+| **W1** | Auth + AI Pipeline | JWT auth, OpenRouter script parser, user-scoped projects | 1 |
+| **W2** | Real Render + Export | FFmpeg MP4 assembly, download button, render queue | 1 |
+| **W3** | Templates + Billing | 3 templates, Stripe checkout, subscription gates | 1 |
+| **W4** | Polish + Share | Public share links, email notifications, onboarding flow | 0 |
+| **W5** | Voice + Screen | Screen recording import, voice selection, preview player | 1 |
+| **W6** | Integrations | HubSpot/Salesforce embed, analytics dashboard | 2 |
+| **W7** | AI Copilot | Chat interface for editing, auto-suggestions | 2 |
+| **W8** | YC Demo Prep | Demo video, metrics, pitch deck, practice | — |
 
 ---
 
-### complexity = 2 — Advanced Differentiators
-
-#### C2.1 — Character Consistency (IP-Adapter Face Lock)
-**Description:** Upload a face image. AI locks character appearance across all scenes via IP-Adapter.
-- **Backend:** Face embedding generation, IP-Adapter workflow injection, character reference storage.
-- **Frontend:** Character manager, face upload, preview across scenes.
-
-#### C2.2 — Template System
-**Description:** One-click YouTube Explainer, Product Demo, Social Reel templates.
-- Pre-built scripts + scene structures + style presets
-- User can fork templates
-
-#### C2.3 — Collaboration & Review (Comments on Timestamps)
-**Description:** Share project link → reviewers comment on timestamps → approval workflow.
-- **Backend:** Comment system with timestamp anchoring, reviewer role, approval status.
-- **Frontend:** Review mode with comment threads.
-
-#### C2.4 — Multi-Platform Export
-**Description:** Auto-format for YouTube (16:9), TikTok/Instagram Reels (9:16), LinkedIn (1:1).
-- ffmpeg auto-crop/reframe + platform-specific subtitles.
-
-#### C2.5 — AI Video Copilot (Chat Assistant)
-**Description:** Chat interface for editing. "Make scene 3 shorter." "Add dramatic music to scene 2."
-- LLM-powered command parser → automated edits.
-
----
-
-## Phase 4: Database Schema (SQLite for Local Development)
+## 4. Database Schema (Updated for YC)
 
 ```
+users (NEW)
+├── id (uuid, pk)
+├── email (string, unique, not null)
+├── hashed_password (string, not null)
+├── full_name (string)
+├── subscription_tier (enum: free/pro/enterprise, default=free)
+├── stripe_customer_id (string, nullable)
+├── team_id (uuid, fk -> teams, nullable)
+├── created_at (datetime)
+└── updated_at (datetime)
+
+teams (NEW)
+├── id (uuid, pk)
+├── name (string, not null)
+├── owner_id (uuid, fk -> users)
+├── subscription_tier (enum: free/pro/enterprise)
+├── stripe_subscription_id (string, nullable)
+├── created_at (datetime)
+└── updated_at (datetime)
+
 projects
 ├── id (uuid, pk)
+├── user_id (uuid, fk -> users, not null) ← NEW
+├── team_id (uuid, fk -> teams, nullable) ← NEW
 ├── title (string, not null)
 ├── script_text (text, not null)
 ├── status (enum: draft/storyboard/rendering/done)
 ├── video_url (string, nullable)
 ├── duration (integer, nullable)
 ├── template (string, default="youtube_explainer")
+├── is_public (boolean, default=false) ← NEW
+├── public_slug (string, unique, nullable) ← NEW
 ├── voice_profile_id (uuid, fk -> voice_profiles)
 ├── character_id (uuid, fk -> characters, nullable)
 ├── created_at (datetime)
 └── updated_at (datetime)
 
-scenes
-├── id (uuid, pk)
-├── project_id (uuid, fk -> projects, cascade)
-├── scene_number (integer, not null)
-├── narration_text (text, not null)
-├── visual_prompt (text, not null)
-├── duration_seconds (float, default=5.0)
-├── status (enum: pending/generating/done/error)
-├── video_clip_url (string, nullable)
-├── scene_metadata (json, default={})
-├── created_at (datetime)
-└── updated_at (datetime)
-
-storyboards
-├── id (uuid, pk)
-├── scene_id (uuid, fk -> scenes, cascade)
-├── frame_number (integer, not null)
-├── image_url (string, not null)
-├── prompt_used (text, nullable)
-├── selected (boolean, default=false)
-└── created_at (datetime)
-
-render_jobs
-├── id (uuid, pk)
-├── project_id (uuid, fk -> projects, cascade)
-├── celery_task_id (string, not null)
-├── progress_percent (integer, default=0)
-├── status (enum: pending/started/success/failure)
-├── logs (text, nullable)
-├── result_url (string, nullable)
-├── created_at (datetime)
-└── updated_at (datetime)
-
-characters
-├── id (uuid, pk)
-├── project_id (uuid, fk -> projects, cascade)
-├── name (string, not null)
-├── reference_image_url (string, not null)
-├── face_embedding (string, nullable)
-└── created_at (datetime)
-
-voice_profiles
-├── id (uuid, pk)
-├── name (string, not null)
-├── language (string, default="en")
-├── gender (string, nullable)
-├── sample_url (string, nullable)
-└── created_at (datetime)
+scenes (unchanged)
+storyboards (unchanged)
+render_jobs (unchanged)
+characters (unchanged)
+voice_profiles (unchanged)
 ```
 
 ---
 
-## Implementation Order (Week-by-Week)
+## 5. YC Success Checklist
 
-| Week | Tasks | Complexity |
-|------|-------|------------|
-| Week 1 | C0.1 Fix DB/models, C0.2 SQLite local setup, C0.3 Frontend infrastructure | 0 |
-| Week 2 | C0.4 Tests, C0.5 Project Dashboard, C1.1 AI Script-to-Scene | 0 + 1 |
-| Week 3 | C1.2 Storyboard Generation, C1.3 Voiceover Pipeline | 1 |
-| Week 4 | C1.4 Auto-Captions, C1.5 Video Assembly & Render | 1 |
-| Week 5 | C2.1 Character Consistency (IP-Adapter) | 2 |
-| Week 6 | C2.2 Template System, C2.3 Collaboration | 2 |
-| Week 7 | C2.4 Multi-Platform Export, C2.5 AI Copilot | 2 |
-| Week 8 | Polish, performance, onboarding flow, YC demo video | All |
-
----
-
-## Success Criteria (for YC Submission)
-
-1. ✅ Working local database (SQLite) — no Docker required for demo
-2. ✅ Full CRUD for projects, scenes, storyboards
-3. ✅ AI script parser producing structured scenes
-4. ✅ ComfyUI integration generating storyboard images
-5. ✅ TTS pipeline producing voiceover audio
-6. ✅ Video assembly rendering final output
-7. ✅ Functional frontend with all core screens
-8. ✅ Test coverage > 60% for backend
-9. ✅ Clean README with quick-start
-10. ✅ One-line pitch: "AI Video Director for content teams — script to publishable video in 3 minutes"
+- [x] Working SQLite database
+- [x] Repository pattern + clean models
+- [x] Frontend build passes (Next.js + Tailwind)
+- [x] ESLint passes
+- [x] Tests pass (5/5)
+- [ ] **User authentication**
+- [ ] **OpenRouter AI integration (script parser)**
+- [ ] **Real FFmpeg video render**
+- [ ] **Stripe billing**
+- [ ] **Template gallery**
+- [ ] **MP4 download**
+- [ ] **Public share links**
+- [ ] **Landing page + pricing**
+- [ ] **Demo video (2 min)**
+- [ ] **10+ beta users**
 
 ---
 
-## Current Blockers (Must Resolve Before Coding)
-
-1. **AGENTS.md says `backend Port: 8067` but README says `8094`** — need to reconcile
-2. **Models use legacy `Column()` and `declarative_base()`** — will cause SQLAlchemy 2.0 conflicts
-3. **No `repositories/` directory** — direct ORM usage violates DClaw architecture rules
-4. **Frontend structure doesn't match spec** — missing `src/` directory
-5. **No pre-built UI components** — need to add shadcn-style components
-
----
-
-*Plan generated: 2026-05-16 | Next step: Begin autonomous implementation starting with C0.1*
+*Updated: 2026-05-16 | Next: Implement W1 (Auth + AI Pipeline)*

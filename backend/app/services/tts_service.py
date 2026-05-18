@@ -1,7 +1,9 @@
 import io
+
 import numpy as np
 import soundfile as sf
 from kokoro_onnx import Kokoro
+
 from app.core.config import settings
 
 

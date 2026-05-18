@@ -154,7 +154,7 @@ export default function ProjectDetailPage() {
                 <Play className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
                 <h3 className="text-lg font-medium">Ready to Render</h3>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  When you're happy with the scenes, render your final video.
+                  When you&apos;re happy with the scenes, render your final video.
                 </p>
                 <Button className="mt-4">
                   <Play className="mr-2 h-4 w-4" />

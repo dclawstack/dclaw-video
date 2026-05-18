@@ -1,5 +1,5 @@
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, delete
 
 from app.models.scene import Scene
 
@@ -29,16 +29,20 @@ class SceneRepository:
         return scene
 
     async def get_by_id(self, scene_id: str) -> Scene | None:
-        result = await self._session.execute(select(Scene).where(Scene.id == scene_id))
+        result = await self._session.execute(
+            select(Scene).where(Scene.id == scene_id)
+        )
         return result.scalar_one_or_none()
 
-    async def list_by_project(self, project_id: str):
+    async def list_by_project(self, project_id: str) -> list[Scene]:
         result = await self._session.execute(
-            select(Scene).where(Scene.project_id == project_id).order_by(Scene.scene_number)
+            select(Scene)
+            .where(Scene.project_id == project_id)
+            .order_by(Scene.scene_number)
         )
-        return result.scalars().all()
+        return list(result.scalars().all())
 
-    async def update(self, scene: Scene, **kwargs) -> Scene:
+    async def update(self, scene: Scene, **kwargs: object) -> Scene:
         for key, value in kwargs.items():
             if hasattr(scene, key):
                 setattr(scene, key, value)
@@ -47,11 +51,15 @@ class SceneRepository:
         return scene
 
     async def delete(self, scene_id: str) -> bool:
-        result = await self._session.execute(delete(Scene).where(Scene.id == scene_id))
+        result = await self._session.execute(
+            delete(Scene).where(Scene.id == scene_id)
+        )
         await self._session.commit()
-        return result.rowcount > 0
+        return bool(result.rowcount > 0)  # type: ignore[attr-defined]
 
     async def delete_by_project(self, project_id: str) -> bool:
-        result = await self._session.execute(delete(Scene).where(Scene.project_id == project_id))
+        result = await self._session.execute(
+            delete(Scene).where(Scene.project_id == project_id)
+        )
         await self._session.commit()
-        return result.rowcount > 0
+        return bool(result.rowcount > 0)  # type: ignore[attr-defined]

@@ -1,5 +1,5 @@
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, delete
 
 from app.models.character import Character
 
@@ -27,16 +27,18 @@ class CharacterRepository:
         return character
 
     async def get_by_id(self, character_id: str) -> Character | None:
-        result = await self._session.execute(select(Character).where(Character.id == character_id))
+        result = await self._session.execute(
+            select(Character).where(Character.id == character_id)
+        )
         return result.scalar_one_or_none()
 
-    async def list_by_project(self, project_id: str):
+    async def list_by_project(self, project_id: str) -> list[Character]:
         result = await self._session.execute(
             select(Character).where(Character.project_id == project_id)
         )
-        return result.scalars().all()
+        return list(result.scalars().all())
 
-    async def update(self, character: Character, **kwargs) -> Character:
+    async def update(self, character: Character, **kwargs: object) -> Character:
         for key, value in kwargs.items():
             if hasattr(character, key):
                 setattr(character, key, value)
@@ -45,6 +47,8 @@ class CharacterRepository:
         return character
 
     async def delete(self, character_id: str) -> bool:
-        result = await self._session.execute(delete(Character).where(Character.id == character_id))
+        result = await self._session.execute(
+            delete(Character).where(Character.id == character_id)
+        )
         await self._session.commit()
-        return result.rowcount > 0
+        return bool(result.rowcount > 0)  # type: ignore[attr-defined]

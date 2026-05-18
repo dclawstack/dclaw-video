@@ -1,5 +1,5 @@
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, delete
 
 from app.models.render_job import RenderJob
 
@@ -16,16 +16,20 @@ class RenderJobRepository:
         return job
 
     async def get_by_id(self, job_id: str) -> RenderJob | None:
-        result = await self._session.execute(select(RenderJob).where(RenderJob.id == job_id))
+        result = await self._session.execute(
+            select(RenderJob).where(RenderJob.id == job_id)
+        )
         return result.scalar_one_or_none()
 
-    async def list_by_project(self, project_id: str):
+    async def list_by_project(self, project_id: str) -> list[RenderJob]:
         result = await self._session.execute(
-            select(RenderJob).where(RenderJob.project_id == project_id).order_by(RenderJob.created_at.desc())
+            select(RenderJob)
+            .where(RenderJob.project_id == project_id)
+            .order_by(RenderJob.created_at.desc())
         )
-        return result.scalars().all()
+        return list(result.scalars().all())
 
-    async def update(self, job: RenderJob, **kwargs) -> RenderJob:
+    async def update(self, job: RenderJob, **kwargs: object) -> RenderJob:
         for key, value in kwargs.items():
             if hasattr(job, key):
                 setattr(job, key, value)
@@ -34,6 +38,8 @@ class RenderJobRepository:
         return job
 
     async def delete(self, job_id: str) -> bool:
-        result = await self._session.execute(delete(RenderJob).where(RenderJob.id == job_id))
+        result = await self._session.execute(
+            delete(RenderJob).where(RenderJob.id == job_id)
+        )
         await self._session.commit()
-        return result.rowcount > 0
+        return bool(result.rowcount > 0)  # type: ignore[attr-defined]
