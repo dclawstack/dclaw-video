@@ -47,7 +47,7 @@ jobs:
       - name: Run tests
         working-directory: ./backend
         env:
-          DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/dclaw_app_test
+          DCLAW_DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/dclaw_app_test
         run: python -m pytest -v --tb=short
 
   frontend-build:
