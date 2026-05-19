@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "https://dclaw-video-api.vercel.app/api/$1" }
+  ]
+}
