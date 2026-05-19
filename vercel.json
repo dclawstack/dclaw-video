@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "buildCommand": "cd frontend && npm run build",
+  "outputDirectory": "frontend/.next",
+  "framework": "nextjs",
+  "installCommand": "cd frontend && npm install",
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "https://api.dclaw.video/api/:path*" }
+  ],
+  "env": {
+    "NEXT_PUBLIC_API_URL": "https://api.dclaw.video"
+  }
+}
