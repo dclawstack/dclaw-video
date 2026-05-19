@@ -54,5 +54,5 @@ warn_unused_ignores = true
 disable_error_code = ["untyped-decorator"]
 
 [[tool.mypy.overrides]]
-module = ["celery.*", "celery.result", "soundfile", "minio", "kokoro_onnx", "pydantic_settings", "jose", "passlib"]
+module = ["celery.*", "celery.result", "soundfile", "minio", "kokoro_onnx", "pydantic_settings", "jose", "passlib.*"]
 ignore_missing_imports = true

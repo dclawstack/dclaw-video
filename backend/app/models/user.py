@@ -17,7 +17,9 @@ class User(Base):
     id: Mapped[str] = mapped_column(
         String(36), primary_key=True, default=lambda: str(uuid.uuid4())
     )
-    email: Mapped[str] = mapped_column(String, unique=True, nullable=False, index=True)
+    email: Mapped[str] = mapped_column(
+        String, unique=True, nullable=False, index=True
+    )
     hashed_password: Mapped[str] = mapped_column(String, nullable=False)
     full_name: Mapped[str | None] = mapped_column(String, nullable=True)
     subscription_tier: Mapped[str] = mapped_column(
@@ -27,7 +29,13 @@ class User(Base):
     )
     stripe_customer_id: Mapped[str | None] = mapped_column(String, nullable=True)
     team_id: Mapped[str | None] = mapped_column(
-        String(36), ForeignKey("teams.id", ondelete="SET NULL"), nullable=True
+        String(36),
+        ForeignKey(
+            "teams.id",
+            ondelete="SET NULL",
+            use_alter=True,
+        ),
+        nullable=True,
     )
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now)
     updated_at: Mapped[datetime] = mapped_column(
@@ -42,8 +50,14 @@ class Team(Base):
         String(36), primary_key=True, default=lambda: str(uuid.uuid4())
     )
     name: Mapped[str] = mapped_column(String, nullable=False)
-    owner_id: Mapped[str] = mapped_column(
-        String(36), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    owner_id: Mapped[str | None] = mapped_column(
+        String(36),
+        ForeignKey(
+            "users.id",
+            ondelete="SET NULL",
+            use_alter=True,
+        ),
+        nullable=True,
     )
     subscription_tier: Mapped[str] = mapped_column(
         Enum("free", "pro", "enterprise", name="team_subscription_tier"),

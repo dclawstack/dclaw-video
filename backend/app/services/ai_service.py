@@ -8,7 +8,7 @@ from app.core.config import settings
 
 
 class AIService:
-    def __init__(self):
+    def __init__(self) -> None:
         self.api_key = settings.openrouter_api_key
         self.model = settings.openrouter_model or "meta-llama/llama-3.1-8b-instruct"
         self.base_url = "https://openrouter.ai/api/v1"
@@ -39,7 +39,7 @@ class AIService:
             )
             resp.raise_for_status()
             data: dict[str, Any] = resp.json()
-            return data["choices"][0]["message"]["content"]
+            return str(data["choices"][0]["message"]["content"])
 
     async def parse_script_to_scenes(
         self, script: str, tone: str = "professional", max_scenes: int = 10
@@ -55,11 +55,13 @@ class AIService:
         ]
         content = await self.chat(messages, temperature=0.3)
         try:
-            return json.loads(content)
+            parsed: list[dict[str, Any]] = json.loads(content)
+            return parsed
         except json.JSONDecodeError:
             match = re.search(r"\[.*\]", content, re.DOTALL)
             if match:
-                return json.loads(match.group(0))
+                parsed = json.loads(match.group(0))
+                return parsed
             raise ValueError(
                 f"Failed to parse AI response as JSON: {content[:200]}"
             )

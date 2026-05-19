@@ -10,12 +10,12 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    result: bool = pwd_context.verify(plain_password, hashed_password)  # type: ignore[no-untyped-call]
+    result: bool = pwd_context.verify(plain_password, hashed_password)
     return result
 
 
 def get_password_hash(password: str) -> str:
-    result: str = pwd_context.hash(password)  # type: ignore[no-untyped-call]
+    result: str = pwd_context.hash(password)
     return result
 
 
